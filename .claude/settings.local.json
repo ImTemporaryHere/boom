@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-nx-workspace@latest:*)",
+      "Bash(npx nx g:*)",
+      "Bash(npm install:*)",
+      "Bash(cat:*)",
+      "Bash(npm init -y)",
+      "Bash(npx nx init)",
+      "Bash(npx nx show:*)",
+      "WebFetch(domain:nx.dev)",
+      "Bash(npx nx serve:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(npm update:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx nx:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

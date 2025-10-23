@@ -1,0 +1,50 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Build outputs
+dist
+.nx/cache
+.nx/workspace-data
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Testing
+coverage
+.nyc_output
+
+# Logs
+logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Docker files
+Dockerfile
+Dockerfile.dev
+docker-compose.yml
+docker-compose.prod.yml
+.dockerignore
+
+# Documentation
+README.md
+CLAUDE.md
+*.md
+
+# Misc
+.prettierrc
+.prettierignore
+.editorconfig
