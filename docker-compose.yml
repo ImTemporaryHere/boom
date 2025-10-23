@@ -31,6 +31,32 @@ services:
     #   - "9229:9229"
     # command: ["npx", "nx", "serve", "backend", "--host", "0.0.0.0", "--inspect=0.0.0.0:9229"]
 
+  frontend:
+    container_name: boom-frontend-dev
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile.dev
+    ports:
+      - "4200:4200"
+    volumes:
+      # Mount source code for hot reload
+      - ./apps:/app/apps
+      - ./libs:/app/libs
+      - ./nx.json:/app/nx.json
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+      # Keep dist in sync for the built files
+      - ./dist:/app/dist
+      # Prevent overwriting node_modules and cache
+      - /app/node_modules
+      - /app/.nx
+    environment:
+      - NODE_ENV=development
+    networks:
+      - boom-network
+    restart: unless-stopped
+    depends_on:
+      - backend
+
 networks:
   boom-network:
     driver: bridge

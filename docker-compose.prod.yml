@@ -32,6 +32,35 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  frontend:
+    container_name: boom-frontend-prod
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile.prod
+    ports:
+      - "80:80"
+    networks:
+      - boom-network
+    restart: always
+    depends_on:
+      - backend
+    # Health check
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
 networks:
   boom-network:
     driver: bridge

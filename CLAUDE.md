@@ -6,16 +6,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is an Nx monorepo workspace named "boom" containing multiple applications. Currently includes:
 - **backend** - A NestJS REST API application located in `apps/backend/`
+- **frontend** - A React application with Tailwind CSS located in `apps/frontend/`
 - **backend-e2e** - End-to-end tests for the backend application
 
 ## Technology Stack
 
 - **Monorepo Management**: Nx 22.0.0
 - **Backend Framework**: NestJS 11.0.0
+- **Frontend Framework**: React 18.x with React Router
+- **Styling**: Tailwind CSS 3.x
 - **Runtime**: Node.js 20.x
 - **Build Tool**: Webpack 5.x with webpack-cli
 - **Language**: TypeScript 5.9.2
 - **Package Manager**: npm
+- **Containerization**: Docker with multi-stage builds
 
 ## Getting Started
 
@@ -33,6 +37,9 @@ npm install
 # Start backend in development mode (hot reload enabled)
 npm start
 
+# Start frontend in development mode (hot reload enabled)
+npm run start:frontend
+
 # Start in production mode
 npm run start:prod
 ```
@@ -42,52 +49,77 @@ npm run start:prod
 # Start the backend in development mode
 npx nx serve backend
 
-# Start the backend in production mode
-npx nx serve backend --configuration=production
+# Start the frontend in development mode
+npx nx serve frontend
 
-# Run the built application directly (must build first)
-npx nx build backend
-node dist/apps/backend/main.js
+# Start both applications (production mode)
+npx nx serve backend --configuration=production
+npx nx serve frontend --configuration=production
 ```
 
-**Backend Application:**
-- Default URL: `http://localhost:3000/api`
-- Swagger API Docs: `http://localhost:3000/api/docs`
-- Port can be customized via `PORT` environment variable
-- Global API prefix: `/api`
+**Application URLs:**
+- **Backend**: `http://localhost:3000/api`
+- **Swagger API Docs**: `http://localhost:3000/api/docs`
+- **Frontend**: `http://localhost:4200`
 
 **Running with custom port:**
 ```bash
+# Backend
 PORT=4000 npm start
+
+# Frontend (use Nx directly)
+PORT=8080 npx nx serve frontend
 ```
 
 ### Docker Development
 
 ```bash
-# Start backend in development mode with Docker (hot reload enabled)
+# Start all services (backend + frontend) in development mode with Docker (hot reload enabled)
 docker-compose up
+
+# Start specific service
+docker-compose up backend
+docker-compose up frontend
 
 # Run in detached mode
 docker-compose up -d
 
 # View logs
 docker-compose logs -f backend
+docker-compose logs -f frontend
+docker-compose logs -f  # All services
 
 # Stop containers
 docker-compose down
 
-# Rebuild image
+# Rebuild images
 docker-compose build
+docker-compose build --no-cache  # Force rebuild without cache
 ```
+
+**Docker Application URLs:**
+- **Backend**: `http://localhost:3000/api`
+- **Swagger Docs**: `http://localhost:3000/api/docs`
+- **Frontend**: `http://localhost:4200`
 
 **Production Docker:**
 ```bash
-# Start with production configuration
+# Start with production configuration (backend on port 3000, frontend on port 80)
 docker-compose -f docker-compose.prod.yml up
+
+# Run in detached mode
+docker-compose -f docker-compose.prod.yml up -d
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
 
 # Stop production containers
 docker-compose -f docker-compose.prod.yml down
 ```
+
+**Production URLs:**
+- **Backend**: `http://localhost:3000/api`
+- **Frontend**: `http://localhost` (port 80)
 
 ### Building Applications
 
@@ -209,6 +241,40 @@ The backend follows NestJS conventions with a modular architecture:
 4. Refresh tokens stored in-memory (lost on restart)
 5. Access token expired → use refresh token to get new pair
 
+### Frontend Application Structure
+
+The frontend is a React application with Tailwind CSS and React Router:
+
+**Core Files:**
+- **main.tsx** (apps/frontend/src/main.tsx) - Application entry point with React Router setup
+- **app.tsx** (apps/frontend/src/app/app.tsx) - Main App component with routing and layout
+- **styles.css** - Global styles with Tailwind directives (@tailwind base, components, utilities)
+- **index.html** - HTML template
+
+**Configuration Files:**
+- **tailwind.config.js** - Tailwind CSS configuration with content paths
+- **postcss.config.js** - PostCSS configuration for Tailwind processing
+- **webpack.config.js** - Webpack build configuration
+- **tsconfig.json** - TypeScript configuration for the frontend app
+
+**Styling:**
+- Tailwind CSS 3.x utility-first CSS framework
+- Responsive design classes (sm:, md:, lg:, etc.)
+- Custom component styles in app.module.css (if needed)
+- Global styles in styles.css
+
+**Routing:**
+- React Router v6 with Routes and Route components
+- Client-side routing with Link components
+- Two sample routes: "/" (Home) and "/page-2"
+
+**Docker Deployment:**
+- **Development**: Webpack dev server on port 4200 with hot reload
+- **Production**: Multi-stage build with Nginx serving static files on port 80
+  - Stage 1: Build the React app with Nx
+  - Stage 2: Serve with Nginx Alpine
+  - Custom nginx.conf for client-side routing support
+
 ### Nx Configuration
 
 - **nx.json** - Defines target defaults (build, lint, test caching) and plugins
@@ -224,11 +290,15 @@ The backend follows NestJS conventions with a modular architecture:
 # Add another NestJS application
 npx nx g @nx/nest:application --name=app-name --directory=apps/app-name
 
+# Add a React application
+npx nx g @nx/react:application --name=app-name --directory=apps/app-name --style=css --bundler=webpack
+
 # Add a library
 npx nx g @nx/nest:library --name=lib-name --directory=libs/lib-name
+npx nx g @nx/react:library --name=lib-name --directory=libs/lib-name
 ```
 
-### Adding NestJS Resources
+### Adding Backend Resources (NestJS)
 
 ```bash
 # Generate a new module
@@ -239,6 +309,19 @@ npx nx g @nx/nest:controller --name=controller-name --project=backend
 
 # Generate a service
 npx nx g @nx/nest:service --name=service-name --project=backend
+```
+
+### Adding Frontend Resources (React)
+
+```bash
+# Generate a new component
+npx nx g @nx/react:component --name=component-name --project=frontend
+
+# Generate a component with directory
+npx nx g @nx/react:component --name=components/MyComponent --project=frontend
+
+# Generate a custom hook
+npx nx g @nx/react:hook --name=use-custom-hook --project=frontend
 ```
 
 ### Running Multiple Tasks

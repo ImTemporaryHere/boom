@@ -1,0 +1,21 @@
+# Development Dockerfile for Frontend
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy workspace files
+COPY nx.json tsconfig.base.json ./
+COPY apps/frontend ./apps/frontend
+
+# Expose port
+EXPOSE 4200
+
+# Start development server
+CMD ["npx", "nx", "serve", "frontend", "--host", "0.0.0.0"]
