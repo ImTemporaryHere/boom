@@ -33,6 +33,10 @@ export class UsersService {
     return await this.usersRepository.findById(id);
   }
 
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository.findAll();
+  }
+
   async validatePassword(email: string, password: string): Promise<User | null> {
     const user = await this.findByEmail(email);
     if (!user) {

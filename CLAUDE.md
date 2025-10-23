@@ -28,7 +28,14 @@ This is an Nx monorepo workspace named "boom" containing multiple applications. 
 ```bash
 # Install dependencies (if not already installed)
 npm install
+
+# Create .env file from example (for Docker)
+cp .env.example .env
+# For production, use:
+# cp .env.production.example .env.production
 ```
+
+**Important:** The `.env` file contains environment variables for Docker Compose. Modify the values as needed for your environment, especially for production deployments where you MUST change the JWT secrets and database passwords.
 
 ### Running Applications
 
@@ -344,16 +351,51 @@ npx nx affected -t test
 
 ## Environment Configuration
 
-The backend application uses the following environment variables:
-- **PORT** - Server port (default: 3000)
-- **HOST** - Server host (default: 0.0.0.0 in Docker, localhost otherwise)
-- **JWT_SECRET** - Secret for access tokens (default: 'secret-key-change-in-production')
-- **JWT_REFRESH_SECRET** - Secret for refresh tokens (default: 'refresh-secret-key-change-in-production')
+### Environment Variables
 
-**Important Notes:**
+The application uses environment variables configured through `.env` files:
+
+**Development (.env):**
+```bash
+# Application
+NODE_ENV=development
+PORT=3000
+HOST=0.0.0.0
+
+# Database
+DB_HOST=postgres
+DB_PORT=5432
+DB_USERNAME=boom
+DB_PASSWORD=boom_dev_password
+DB_DATABASE=boom_dev
+
+# JWT Secrets
+JWT_SECRET=secret-key-change-in-production
+JWT_REFRESH_SECRET=refresh-secret-key-change-in-production
+
+# PostgreSQL (for Docker Compose)
+POSTGRES_USER=boom
+POSTGRES_PASSWORD=boom_dev_password
+POSTGRES_DB=boom_dev
+```
+
+**Production (.env.production):**
+- Use `.env.production.example` as a template
+- MUST change all secrets and passwords
+- Set `NODE_ENV=production`
+- Update database credentials
+
+**Docker Compose:**
+- Development: Uses `.env` file automatically
+- Production: Use `docker-compose -f docker-compose.prod.yml --env-file .env.production up`
+- Both compose files read environment variables from the `.env` file
+- Environment variables are passed to containers via the `environment` section
+
+**Important Security Notes:**
+- `.env` file is gitignored - never commit it to version control
 - Default JWT secrets are for development only - MUST be changed in production
-- In-memory storage means user data and refresh tokens are lost on restart
-- No database configured yet - consider adding PostgreSQL/MongoDB for production
+- Change all default passwords before deploying to production
+- Use strong, randomly generated secrets for JWT tokens in production
 
 ## API Documentation
 

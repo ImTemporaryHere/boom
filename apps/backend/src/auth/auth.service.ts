@@ -5,6 +5,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { Tokens, JwtPayload } from './interfaces/tokens.interface';
 import { RefreshTokenRepository } from './repositories/refresh-token.repository';
+import { AuthResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,12 +26,20 @@ export class AuthService {
     await this.refreshTokenRepository.deleteExpiredTokens();
   }
 
-  async signUp(signUpDto: SignUpDto): Promise<Tokens> {
+  async signUp(signUpDto: SignUpDto): Promise<AuthResponseDto> {
     const user = await this.usersService.create(signUpDto);
-    return this.generateTokens(user.id, user.email);
+    const tokens = await this.generateTokens(user.id, user.email);
+
+    // Return user data without password
+    const { password, ...userWithoutPassword } = user;
+    return {
+      user: userWithoutPassword,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
   }
 
-  async signIn(signInDto: SignInDto): Promise<Tokens> {
+  async signIn(signInDto: SignInDto): Promise<AuthResponseDto> {
     const user = await this.usersService.validatePassword(
       signInDto.email,
       signInDto.password,
@@ -40,10 +49,18 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.generateTokens(user.id, user.email);
+    const tokens = await this.generateTokens(user.id, user.email);
+
+    // Return user data without password
+    const { password, ...userWithoutPassword } = user;
+    return {
+      user: userWithoutPassword,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
   }
 
-  async refreshTokens(refreshToken: string): Promise<Tokens> {
+  async refreshTokens(refreshToken: string): Promise<AuthResponseDto> {
     try {
       const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET || 'refresh-secret-key-change-in-production',
@@ -71,8 +88,22 @@ export class AuthService {
       // Delete old refresh token
       await this.refreshTokenRepository.deleteById(storedToken.id);
 
+      // Get user data
+      const user = await this.usersService.findById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
       // Generate new tokens
-      return this.generateTokens(payload.sub, payload.email);
+      const tokens = await this.generateTokens(payload.sub, payload.email);
+
+      // Return user data without password
+      const { password, ...userWithoutPassword } = user;
+      return {
+        user: userWithoutPassword,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      };
     } catch (error) {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }

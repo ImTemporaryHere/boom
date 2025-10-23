@@ -1,18 +1,46 @@
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { NxReactWebpackPlugin } = require('@nx/react/webpack-plugin');
 const { join } = require('path');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
 module.exports = {
   output: {
     path: join(__dirname, '../../dist/apps/frontend'),
     clean: true,
   },
+  watchOptions: {
+    poll: 1000, // Check for changes every second
+    aggregateTimeout: 300,
+    ignored: /node_modules/,
+  },
   devServer: {
     port: 4200,
+    hot: true,
+    liveReload: true,
+    watchFiles: {
+      paths: ['src/**/*', 'apps/frontend/src/**/*'],
+      options: {
+        usePolling: true,
+        interval: 1000,
+      },
+    },
     historyApiFallback: {
       index: '/index.html',
       disableDotRule: true,
       htmlAcceptHeaders: ['text/html', 'application/xhtml+xml'],
+    },
+    client: {
+      overlay: {
+        errors: true,
+        warnings: false,
+      },
+      progress: true,
+      webSocketURL: {
+        hostname: '0.0.0.0',
+        port: 4200,
+      },
     },
   },
   plugins: [
@@ -32,5 +60,6 @@ module.exports = {
       // See: https://react-svgr.com/
       // svgr: false
     }),
+    ...(isDevelopment ? [new ReactRefreshWebpackPlugin()] : []),
   ],
 };

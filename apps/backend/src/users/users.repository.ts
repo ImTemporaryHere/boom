@@ -32,6 +32,14 @@ export class UsersRepository {
     });
   }
 
+  async findAll(): Promise<User[]> {
+    return await this.repository.find({
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
   async existsByEmail(email: string): Promise<boolean> {
     const count = await this.repository.count({
       where: { email },
