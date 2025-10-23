@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { RefreshTokenRepository } from './repositories/refresh-token.repository';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [RefreshTokenRepository, AuthService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}
