@@ -1,4 +1,5 @@
 import { Route, Routes, Link } from 'react-router-dom';
+import { ApiExample } from './components/ApiExample';
 
 export function App() {
   return (
@@ -39,19 +40,22 @@ export function App() {
             <Route
               path="/"
               element={
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                    Welcome to Boom Frontend
-                  </h2>
-                  <p className="text-gray-600 mb-4">
-                    This is a React application with Tailwind CSS, built with Nx monorepo.
-                  </p>
-                  <Link
-                    to="/page-2"
-                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-                  >
-                    Go to Page 2
-                  </Link>
+                <div className="space-y-6">
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                      Welcome to Boom Frontend
+                    </h2>
+                    <p className="text-gray-600 mb-4">
+                      This is a React application with Tailwind CSS and RTK Query, built with Nx monorepo.
+                    </p>
+                    <Link
+                      to="/page-2"
+                      className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+                    >
+                      Go to Page 2
+                    </Link>
+                  </div>
+                  <ApiExample />
                 </div>
               }
             />

@@ -52,6 +52,9 @@ Thumbs.db
 .nx/cache
 .nx/workspace-data
 
+# RTK Query Generated Files
+apps/frontend/src/store/api/generatedApi.ts
+
 # Environment variables
 .env
 .env.local
